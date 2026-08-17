@@ -9,7 +9,7 @@ before it is reported.
 In Claude Code, from any project:
 
 ```
-/plugin marketplace add PLACEHOLDER_OWNER/claude-plugins
+/plugin marketplace add prity27/claude_plugins
 /plugin install sdei-review@sdei-tools
 /reload-plugins
 ```
