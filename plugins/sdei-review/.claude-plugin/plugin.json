@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "sdei-review",
+  "displayName": "Parallel Code Review",
+  "version": "0.1.0",
+  "description": "Five code-review specialists that run in parallel — security, correctness, conventions, performance, and interface contract — plus a /deep-review orchestrator that verifies every finding adversarially before reporting it. Language and framework agnostic: each agent calibrates against the repository it is reviewing instead of carrying hardcoded rules.",
+  "author": {
+    "name": "prity27"
+  },
+  "keywords": ["code-review", "security", "performance", "agents"],
+  "license": "UNLICENSED"
+}

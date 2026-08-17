@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "sdei-tools",
+  "description": "Shared Claude Code tooling — parallel code-review specialists and workflow skills",
+  "owner": {
+    "name": "prity27"
+  },
+  "plugins": [
+    {
+      "name": "sdei-review",
+      "source": "./plugins/sdei-review",
+      "description": "Five parallel code-review specialists (security, correctness, conventions, performance, interface contract) with adversarial verification. Works in any language or framework.",
+      "version": "0.1.0",
+      "author": {
+        "name": "prity27"
+      },
+      "category": "productivity",
+      "keywords": ["code-review", "security", "performance", "agents"]
+    }
+  ]
+}
