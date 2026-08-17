@@ -1,22 +1,34 @@
 # sdei-tools
 
-A Claude Code plugin marketplace. One plugin today: **`sdei-review`**.
+A [Claude Code](https://code.claude.com) plugin marketplace. One plugin today:
+**`sdei-review`** — five code-review specialists that run in parallel, each finding challenged
+before it is reported.
 
 ## Install
 
+In Claude Code, from any project:
+
 ```
-/plugin marketplace add <owner>/claude-plugins
+/plugin marketplace add PLACEHOLDER_OWNER/claude-plugins
 /plugin install sdei-review@sdei-tools
+/reload-plugins
 ```
 
-Replace `<owner>/claude-plugins` with wherever this repository ends up hosted. Private
-repositories work — installs authenticate with your existing git credentials.
+`/reload-plugins` is not optional. Skills register the moment they are installed, but the
+subagent registry is snapshotted at session start — without a reload (or a restart) the five
+agents are not dispatchable yet, and the plugin looks broken.
 
-To try it without installing:
+To try it without installing anything:
 
 ```
 claude --plugin-dir /path/to/claude-plugins/plugins/sdei-review
 ```
+
+## Requirements
+
+Claude Code, and read access to this repository. Nothing else — no API key, no secret, no
+admin rights, and no configuration. Installs authenticate with your existing git credentials,
+so private forks work too.
 
 ## What `sdei-review` gives you
 
@@ -57,16 +69,26 @@ axios wrapper convention, identified the existing API helpers the new code shoul
 noticed a token key casing mismatch (`accessToken` vs the repo's `accesstoken`), and explicitly
 scoped a pre-existing committed `.env` *out* as not belonging to the diff.
 
-## Repository-specific reviewers
+## Pairing with repository-specific reviewers
 
-These are deliberately generic. A reviewer that carries a specific repo's file names, line
-citations, and known exceptions will always beat a generic one on that repo — see
-`HCTS_Backend/.claude/agents/` for that pattern.
+These agents are deliberately generic, and generic has a ceiling. A reviewer that carries one
+repo's actual file names, line citations, call-site counts, and documented exceptions will beat
+a generic one on that repo every time — because it can assert "this is the convention, in 22 of
+24 modules" instead of having to derive it.
 
-Project agents in `.claude/agents/` override same-named plugin agents, so a repo can keep its
-own specialists and still install this plugin for everything else. The names here are
-axis-based (`security-reviewer`) rather than prefixed, so they don't collide with
-repo-specific ones (`hcts-security-reviewer`).
+So the recommended setup for a codebase you work in daily is **both**:
+
+- Repo-specific specialists committed to that project's `.claude/agents/`, carrying its real
+  evidence and its known-exception list.
+- This plugin for everything else — other services, unfamiliar repos, and one-off reviews.
+
+They coexist cleanly. Project agents in `.claude/agents/` take precedence over same-named
+plugin agents, and the names here are axis-based (`security-reviewer`) rather than prefixed, so
+they don't collide with a repo-specific set (`myproject-security-reviewer`).
+
+The fastest way to build the repo-specific version is to copy an agent from `agents/` and
+replace its Phase 0 calibration section with the answers — the concrete file paths, counts, and
+"do not flag these, they're deliberate" list for that codebase.
 
 ## Adding a plugin to this marketplace
 
