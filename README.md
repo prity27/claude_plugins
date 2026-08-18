@@ -1,8 +1,14 @@
 # sdei-tools
 
-A [Claude Code](https://code.claude.com) plugin marketplace. One plugin today:
-**`sdei-review`** — five code-review specialists that run in parallel, each finding challenged
-before it is reported.
+A [Claude Code](https://code.claude.com) plugin marketplace. Two plugins:
+
+- **`sdei-review`** — five code-review specialists that run in parallel, each finding challenged
+  before it is reported.
+- **`sdei-delivery`** — nine skills carrying a project from pre-sales material to production, with
+  a human gate at each expensive decision.
+
+They pair: `sdei-delivery` establishes what was promised and checks the code against it,
+`sdei-review` judges whether that code is any good.
 
 ## Install
 
@@ -11,6 +17,7 @@ In Claude Code, from any project:
 ```
 /plugin marketplace add prity27/claude_plugins
 /plugin install sdei-review@sdei-tools
+/plugin install sdei-delivery@sdei-tools
 /reload-plugins
 ```
 
@@ -68,6 +75,39 @@ Verified in practice: run against a React 19 + Vite frontend, the agents found t
 axios wrapper convention, identified the existing API helpers the new code should have reused,
 noticed a token key casing mismatch (`accessToken` vs the repo's `accesstoken`), and explicitly
 scoped a pre-existing committed `.env` *out* as not belonging to the diff.
+
+## What `sdei-delivery` gives you
+
+A chain of skills, each writing an artefact the next one reads. Everything lands in the project
+repository, so scope, schema and acceptance evidence are diffable and survive the session.
+
+```
+/project-setup      →  docs/delivery/PROFILE.md
+/ingest-knowledge   →  docs/knowledge/graph.json + sources/ + OPEN-QUESTIONS.md
+/write-stories      →  docs/delivery/stories/<epic>.md          ← human gate
+/design-schema      →  docs/delivery/SCHEMA.md + mermaid ERD    ← human gate
+/write-docs         →  README.md per repo, docs/API.md, docs/ARCHITECTURE.md
+/build-module       →  a plan-mode brief per epic, then the slice
+/write-tests        →  tests named for the AC ids they prove
+/validate-delivery  →  docs/delivery/VALIDATION.md              ← human gate
+/deploy             →  a GitHub Actions pipeline, or a PM2 runbook
+```
+
+Three agents support it: `story-writer` drafts one epic per instance in parallel,
+`schema-designer` proposes a data model without deciding it, and `acceptance-validator` audits
+adversarially — first for scope the stories missed, later for acceptance criteria the code never
+actually delivered.
+
+The design principles are the same three throughout: **nothing is unsourced** (every entity,
+story and field cites the document and quote it came from), **gaps become questions rather than
+defaults** (an invented requirement is worse than a missing one), and **the gates are interlocks**
+— `/build-module` refuses an unapproved epic, `/validate-delivery` refuses to mark a criterion
+passed without a `file:line` citation it actually read.
+
+On an existing codebase, `/project-setup` and `/write-docs` are worth running alone: they produce
+an honest baseline in an hour, including the discrepancies nobody had written down.
+
+Full detail: [`plugins/sdei-delivery/README.md`](plugins/sdei-delivery/README.md).
 
 ## Pairing with repository-specific reviewers
 
