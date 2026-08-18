@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "project": "Harvest Ops (fixture)",
+  "generated": "2026-03-09",
+  "sources": [
+    { "id": "src-discovery-1", "path": "docs/knowledge/sources/2026-03-04-discovery-call.md", "kind": "call-transcript", "date": "2026-03-04", "participants": ["client operations director", "delivery lead"], "authority": "medium" },
+    { "id": "src-proposal-v2", "path": "docs/knowledge/sources/proposal-v2.md", "kind": "proposal", "date": "2026-03-09", "authority": "high" }
+  ],
+  "entities": [
+    {
+      "id": "ent-campaign", "type": "entity", "name": "Campaign",
+      "description": "A harvest run scoped to one grower, one crop and a date window.",
+      "attributes": [
+        { "name": "campaignName", "type": "string", "required": true, "confidence": "stated" },
+        { "name": "growerId", "type": "ref:Grower", "required": true, "confidence": "stated" },
+        { "name": "startDate", "type": "date", "required": true, "confidence": "stated" },
+        { "name": "status", "type": "enum", "values": ["draft", "active", "closed"], "confidence": "implied" },
+        { "name": "runningTotal", "type": "number", "required": false, "confidence": "assumed" }
+      ],
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L101,L118", "quote": "A campaign is one grower, one crop, one date window" }]
+    },
+    {
+      "id": "ent-grower", "type": "entity", "name": "Grower",
+      "description": "The farming business a campaign belongs to and is paid out to.",
+      "attributes": [
+        { "name": "growerName", "type": "string", "required": true, "confidence": "stated" }
+      ],
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L118", "quote": "every campaign is one grower" }]
+    },
+    {
+      "id": "ent-crew", "type": "entity", "name": "Crew",
+      "description": "A team dispatched to work a campaign.",
+      "attributes": [{ "name": "crewName", "type": "string", "required": true, "confidence": "stated" }],
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L140", "quote": "A crew belongs to one campaign" }]
+    },
+    {
+      "id": "ent-reception", "type": "entity", "name": "Reception",
+      "description": "A weighbridge event recorded against a campaign.",
+      "attributes": [
+        { "name": "campaignId", "type": "ref:Campaign", "required": true, "confidence": "stated" },
+        { "name": "gross", "type": "number", "required": true, "confidence": "stated" },
+        { "name": "tare", "type": "number", "required": true, "confidence": "stated" },
+        { "name": "net", "type": "number", "required": true, "confidence": "implied" },
+        { "name": "recordedBy", "type": "ref:User", "required": true, "confidence": "stated" }
+      ],
+      "confidence": "stated",
+      "sources": [
+        { "id": "src-discovery-1", "loc": "L152", "quote": "Gross, tare, and we keep the net. That's the number the grower gets paid on." },
+        { "id": "src-proposal-v2", "loc": "3.4", "quote": "Each reception captures gross and tare; the net is derived." }
+      ]
+    },
+    {
+      "id": "actor-grower-admin", "type": "actor", "name": "Grower administrator",
+      "description": "Manages campaigns for one grower.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L204", "quote": "Once a campaign is closed nothing else lands on it" }]
+    },
+    {
+      "id": "actor-weighbridge-operator", "type": "actor", "name": "Weighbridge operator",
+      "description": "Records receptions at the bridge.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L152", "quote": "At the weighbridge we record a reception" }]
+    },
+    {
+      "id": "actor-auditor", "type": "actor", "name": "Co-op auditor",
+      "description": "Reviews who recorded what.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L221", "quote": "Auditors need to see who recorded what. That's a hard requirement from the co-op." }]
+    },
+    {
+      "id": "term-gross-tare", "type": "term", "name": "Gross / tare / net",
+      "description": "Weighbridge terms. NO DEFINITION GIVEN IN ANY SOURCE.",
+      "confidence": "implied",
+      "sources": [{ "id": "src-discovery-1", "loc": "L152", "quote": "Gross, tare, and we keep the net." }]
+    },
+    {
+      "id": "proc-campaign-close", "type": "process", "name": "Close a campaign",
+      "description": "An administrator closes a campaign; nothing further may be recorded against it.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L204", "quote": "Once a campaign is closed nothing else lands on it" }]
+    },
+    {
+      "id": "proc-reception-record", "type": "process", "name": "Record a reception",
+      "description": "Operator records gross and tare; net is derived; the campaign running total is updated. Peak volume ~2000/day from several devices at one bridge. No failure path stated in any source.",
+      "confidence": "stated",
+      "sources": [
+        { "id": "src-discovery-1", "loc": "L166-L167", "quote": "Peak is about two thousand receptions a day. Several devices at the same bridge." },
+        { "id": "src-proposal-v2", "loc": "3.4", "quote": "Receptions update the campaign running total so the dashboard is current." }
+      ]
+    },
+    {
+      "id": "constraint-audit", "type": "constraint", "name": "Reception attribution is auditable",
+      "description": "Auditors must be able to see who recorded each reception. Hard requirement from the co-op.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L221", "quote": "That's a hard requirement from the co-op." }]
+    },
+    {
+      "id": "non-goal-reopen", "type": "non-goal", "name": "Reopening a closed campaign",
+      "description": "Explicitly out of scope for phase one.",
+      "confidence": "stated",
+      "sources": [{ "id": "src-proposal-v2", "loc": "5.1", "quote": "Reopening a closed campaign is explicitly out of scope for phase one." }]
+    }
+  ],
+  "relations": [
+    { "id": "rel-grower-campaign", "from": "ent-grower", "to": "ent-campaign", "type": "has-many", "cardinality": "1:N", "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L118", "quote": "every campaign is one grower" }] },
+    { "id": "rel-campaign-crew", "from": "ent-campaign", "to": "ent-crew", "type": "staffed-by", "cardinality": "UNRESOLVED", "confidence": "implied",
+      "sources": [
+        { "id": "src-discovery-1", "loc": "L140", "quote": "A crew belongs to one campaign" },
+        { "id": "src-proposal-v2", "loc": "3.2", "quote": "Crews are shared across concurrent campaigns at peak" }
+      ] },
+    { "id": "rel-campaign-reception", "from": "ent-campaign", "to": "ent-reception", "type": "has-many", "cardinality": "1:N", "confidence": "stated",
+      "sources": [{ "id": "src-discovery-1", "loc": "L152", "quote": "we record a reception against the campaign" }] }
+  ],
+  "openQuestions": [
+    {
+      "id": "q-1",
+      "question": "Can a crew work two campaigns in the same week?",
+      "why": "Decides whether crew<->campaign is 1:N or M:N, which changes the schema and the crew stories.",
+      "blocks": ["rel-campaign-crew", "ent-crew"],
+      "conflict": [
+        { "source": "src-discovery-1", "says": "a crew belongs to one campaign (L140)" },
+        { "source": "src-proposal-v2", "says": "crews are shared across concurrent campaigns (3.2)" }
+      ],
+      "status": "open", "answer": null, "answeredBy": null, "answeredOn": null
+    }
+  ]
+}

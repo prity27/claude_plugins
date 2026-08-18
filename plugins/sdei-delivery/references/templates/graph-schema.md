@@ -6,7 +6,7 @@ One file, four arrays, every claim traceable to a source. Written by `/ingest-kn
 ```json
 {
   "version": 1,
-  "project": "HCTS",
+  "project": "Harvest Ops",
   "generated": "2026-03-11",
   "sources": [
     {
