@@ -4,8 +4,8 @@ A [Claude Code](https://code.claude.com) plugin marketplace. Two plugins:
 
 - **`sdei-review`** — five code-review specialists that run in parallel, each finding challenged
   before it is reported.
-- **`sdei-delivery`** — nine skills carrying a project from pre-sales material to production, with
-  a human gate at each expensive decision.
+- **`sdei-delivery`** — ten skills carrying a project from pre-sales material to production, with
+  a human gate at each expensive decision. Any language or framework, greenfield or half-built.
 
 They pair: `sdei-delivery` establishes what was promised and checks the code against it,
 `sdei-review` judges whether that code is any good.
@@ -84,6 +84,7 @@ repository, so scope, schema and acceptance evidence are diffable and survive th
 ```
 /project-setup      →  docs/delivery/PROFILE.md
 /ingest-knowledge   →  docs/knowledge/graph.json + sources/ + OPEN-QUESTIONS.md
+/onboard-existing   →  docs/delivery/AS-BUILT.md + as-built stories   ← brownfield only, human gate
 /write-stories      →  docs/delivery/stories/<epic>.md          ← human gate
 /design-schema      →  docs/delivery/SCHEMA.md + mermaid ERD    ← human gate
 /write-docs         →  README.md per repo, docs/API.md, docs/ARCHITECTURE.md

@@ -27,6 +27,31 @@ Last updated: <YYYY-MM-DD> · Updated by: <name>
 knowledge graph gets defined and confirmed with a human before a story is written on top of it.
 `expert` means domain terms pass through unchallenged and the questions stay technical.
 
+## Project stage
+
+| Field | Value |
+| --- | --- |
+| Stage | greenfield / scaffolded / partial / mature |
+| Evidence for that stage | `file:line` citations, not an impression |
+| Estimated completeness | e.g. "~40% of intended scope — estimated from reading code, not measured" |
+| Activity | e.g. weekly commits, 4 authors / dormant since <date>, 1 author |
+| Repository layout | single repo (`client/` + `server/`) / separate repos / polyglot monorepo |
+
+Fill the three lists below only when the stage is `partial` or `mature`. They are what makes a
+brownfield profile worth having — delete the section for a greenfield project.
+
+**Works end to end** — traced from entry point to persistence:
+
+- <feature> — `file:line`
+
+**Started and abandoned** — stubs, TODOs, dead routes, models nobody reads. Record, do not tidy:
+
+- <what> — `file:line`
+
+**Contradicts the docs or the config**:
+
+- <what the doc claims> versus <what the code does> — `file:line`
+
 ## Backend
 
 | Field | Value |
@@ -35,14 +60,19 @@ knowledge graph gets defined and confirmed with a human before a story is writte
 | Git remote | URL |
 | Default branch | |
 | Branch convention | e.g. `<name>-dev` merged to main via PR |
+| Stack family | e.g. Node / Python / Go / Java / .NET / Ruby / PHP / Rust |
 | Language / runtime | e.g. TypeScript ESM on Node >= 24.18 |
 | Framework | e.g. Express 4 |
-| Build step | e.g. none — run with tsx / tsc to dist / esbuild |
+| Package manager | e.g. npm + `package-lock.json` / uv / poetry / go mod / maven — and whether a lockfile is committed |
+| Build step | e.g. none — run with tsx / tsc to dist / esbuild / `go build` / `mvn package` |
 | Database | e.g. MongoDB 7 via Mongoose 9 |
 | Migrations | tool, or **none — schema lives only in the ORM models** |
-| Gate commands | e.g. `npm run typecheck` |
-| Test runner | e.g. none configured / jest / vitest |
-| Entry point | e.g. `src/index.ts` |
+| Gate commands | the exact commands, e.g. `npm run typecheck` / `ruff check . && mypy .` / `go vet ./...` |
+| Test runner | e.g. none configured / jest / vitest / pytest / go test |
+| Entry point | e.g. `src/index.ts` / `cmd/api/main.go` |
+
+Every later skill runs the **gate commands** row verbatim. Record what the project really uses,
+never a command from another project's habits.
 
 ## Frontend
 
@@ -51,23 +81,32 @@ knowledge graph gets defined and confirmed with a human before a story is writte
 | Working directory | absolute path |
 | Git remote | URL |
 | Default branch | |
+| Stack family | e.g. React SPA / Next.js / Vue / Svelte / server-rendered templates / mobile |
 | Language / framework | e.g. TypeScript + React 19 |
 | Build tool | e.g. Vite 7 |
+| Package manager | e.g. npm + committed lockfile |
 | State management | e.g. Redux Toolkit |
 | UI system | e.g. Radix primitives + Tailwind 4 |
 | Data fetching | e.g. axios wrapper at `src/lib/api.ts` |
 | Gate commands | e.g. `npm run lint`, `npm run build` |
 | Test runner | e.g. none configured / vitest + testing-library |
 
+If the project has no separate frontend — an API-only service, a CLI, a worker — write
+`not applicable` here rather than inventing one. Later skills check this row before asking for
+frontend work.
+
 ## Deployment
 
 | Field | Value |
 | --- | --- |
-| Pipeline | GitHub Actions / PM2 over SSH / both / manual |
+| CI | e.g. GitHub Actions / GitLab CI / Jenkins / none — and whether it gates `main` or only PRs |
+| Delivery mechanism | process manager over SSH (PM2, systemd, supervisor) / container image to a registry / PaaS push (Vercel, Netlify, Fly, Render, Heroku) / static upload (S3+CDN) / manual |
 | Environments | e.g. staging, production |
-| Backend host | e.g. EC2 `ubuntu@1.2.3.4`, PM2 process `app` |
+| Backend host | e.g. EC2 `ubuntu@1.2.3.4`, PM2 process `app` / ECS service / Fly app name |
 | Frontend host | e.g. same VM behind nginx / S3 + CloudFront / Vercel |
-| Secrets live in | e.g. GitHub Actions secrets, `.env` on the host |
+| Install command on target | e.g. `npm ci` / `pip install -r requirements.txt` / `go build ./...` — from the lockfile where one exists |
+| Restart / release command | e.g. `pm2 reload app --update-env` / `systemctl restart app` / `kubectl rollout restart deploy/app` |
+| Secrets live in | e.g. GitHub Actions secrets, `.env` on the host, Vault, SSM Parameter Store |
 | Rollback | the actual command |
 | Health check | the URL that proves the deploy worked |
 
@@ -102,6 +141,7 @@ Notes: <data residency, retention periods, BAAs, anything a story must honour>
 | Knowledge graph | `docs/knowledge/graph.json` |
 | Source digests | `docs/knowledge/sources/` |
 | Open questions | `docs/knowledge/OPEN-QUESTIONS.md` |
+| As-built inventory (brownfield only) | `docs/delivery/AS-BUILT.md` |
 | User stories | `docs/delivery/stories/` |
 | Database model | `docs/delivery/SCHEMA.md` |
 | API contract | `docs/API.md` |

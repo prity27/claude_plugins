@@ -2,7 +2,7 @@
 name: write-docs
 description: Write the project's documentation from what the code actually does — a README per repository scoped to real scripts and real env vars, docs/API.md as the endpoint contract, and docs/ARCHITECTURE.md for the layering and data flow. Use when onboarding a repo, after an epic ships, or when the README no longer matches reality.
 argument-hint: "[readme | api | architecture | all] [backend | frontend] — default: all, current repo"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(cat:*), Bash(grep:*), Bash(find:*), Bash(git log:*), Bash(git ls-files:*), Bash(head:*), Bash(test:*), Bash(npm run:*)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*), Bash(cat:*), Bash(grep:*), Bash(find:*), Bash(git log:*), Bash(git ls-files:*), Bash(head:*), Bash(test:*), Bash(wc:*), Bash(npm run:*), Bash(pnpm run:*), Bash(yarn run:*), Bash(make -n:*), Bash(python -m:*), Bash(python3 -m:*), Bash(pytest:*), Bash(go test:*), Bash(go vet:*), Bash(dotnet test:*), Bash(cargo check:*)
 ---
 
 # Write docs
@@ -28,9 +28,9 @@ package manager the project does not use, a Docker setup that was never adopted,
 does not exist. A new engineer follows it, nothing works, and from then on nobody trusts any
 documentation in the repository — including the accurate parts.
 
-So: if `npm test` exits 1, the README says there are no tests. If there is no build step, it does
-not describe one. If the docs and the code disagree, the code wins and the disagreement gets
-reported.
+So: if the project's test command exits non-zero or matches no files, the README says there are no
+tests. If there is no build step, it does not describe one. If the docs and the code disagree, the
+code wins and the disagreement gets reported.
 
 ## 1. README, per repository
 
@@ -38,8 +38,9 @@ Templates: `${CLAUDE_PLUGIN_ROOT}/references/templates/readme-backend.md` and `r
 
 Derive, never assume:
 
-- **scripts** — read `package.json` scripts and say what each really does. A script that prints an
-  error and exits is documented as not implemented;
+- **commands** — read the task definitions the stack uses (`package.json` scripts, `Makefile`
+  targets, `pyproject.toml` tool entries, `Rakefile` tasks, gradle tasks) and say what each really
+  does. A task that prints an error and exits is documented as not implemented;
 - **prerequisites** — runtime version from `engines` or the toolchain config; the database and its
   version; anything that must exist before the first run;
 - **environment** — every variable the code actually reads. Grep for `process.env` (or the stack's

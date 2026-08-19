@@ -19,20 +19,31 @@ Read `docs/delivery/PROFILE.md`, the approved epic, and its acceptance criteria.
 
 Then establish whether a runner actually exists — this is step zero, not an assumption:
 
+Take the test command from the profile's **test runner** and **gate commands** rows, then verify
+it against the repository. Look for three things in whatever form the stack expresses them: a
+declared test command, a runner config file, and test files that actually exist.
+
 ```bash
-cat package.json                       # scripts.test, and the runner in devDependencies
-ls jest.config.* vitest.config.* playwright.config.* 2>/dev/null
-find . -path ./node_modules -prune -o -name '*.test.*' -print -o -name '*.spec.*' -print | head
-npm test                               # what does it actually do
+# the declared command — from the profile, e.g.
+npm test | pytest | go test ./... | mvn test | dotnet test | bundle exec rspec
+
+# the runner config, by stack family
+ls jest.config.* vitest.config.* playwright.config.* 2>/dev/null          # Node
+ls pytest.ini tox.ini setup.cfg 2>/dev/null; grep -n "\[tool.pytest" pyproject.toml 2>/dev/null  # Python
+ls *_test.go 2>/dev/null; ls src/test 2>/dev/null                         # Go / Java
+
+# do test files exist at all
+find . \( -path ./node_modules -o -path ./.venv -o -path ./target \) -prune -o \
+  \( -name '*.test.*' -o -name '*.spec.*' -o -name 'test_*.py' -o -name '*_test.go' \) -print | head
 ```
 
 Three cases:
 
 1. **A working runner and existing tests** — read two of them and match their shape exactly.
-2. **A runner in `devDependencies` with no config and `npm test` exiting 1** — common, and it means
-   there is no harness. Standing one up is a decision with real consequences (which runner, how the
-   database is handled, whether CI runs it), so **put it to the user before writing config**, and
-   propose the smallest thing that runs one real test end to end.
+2. **A runner declared in the manifest with no config, and the test command failing or matching
+   nothing** — common, and it means there is no harness. Standing one up is a decision with real
+   consequences (which runner, how the database is handled, whether CI runs it), so **put it to the
+   user before writing config**, and propose the smallest thing that runs one real test end to end.
 3. **Nothing at all** — same conversation, from a blank slate. Recommend the runner that matches
    the stack the profile records, not the one you like.
 

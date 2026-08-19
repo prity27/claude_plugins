@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "sdei-tools",
-  "description": "Shared Claude Code tooling — parallel code-review specialists and a delivery-lifecycle skill suite",
+  "description": "Shared Claude Code tooling \u2014 parallel code-review specialists and a delivery-lifecycle skill suite",
   "owner": {
     "name": "prity27"
   },
@@ -25,7 +25,7 @@
     {
       "name": "sdei-delivery",
       "source": "./plugins/sdei-delivery",
-      "description": "Nine skills that carry a project from pre-sales material to production: project profile, knowledge graph, user stories with acceptance criteria, database model, documentation, module-scale builds, tests, acceptance validation and deployment — with a human gate at each expensive decision.",
+      "description": "Ten skills that carry a project from pre-sales material to production, in any language or framework: project profile, knowledge graph, brownfield onboarding of existing code, user stories with acceptance criteria, database model, documentation, module-scale builds, tests, acceptance validation and deployment \u2014 with a human gate at each expensive decision.",
       "version": "0.1.0",
       "author": {
         "name": "prity27"
@@ -38,7 +38,8 @@
         "database-schema",
         "documentation",
         "deployment",
-        "owasp"
+        "owasp",
+        "brownfield"
       ]
     }
   ]

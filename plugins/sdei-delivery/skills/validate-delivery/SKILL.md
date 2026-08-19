@@ -1,7 +1,7 @@
 ---
 name: validate-delivery
 description: Validate delivered code against the approved user stories and their acceptance criteria — run the project's gates, map every criterion to concrete evidence, mark it PASS, FAIL or NOT COVERED, and take a human through sign-off. Scope conformance, not code quality. Use before calling an epic done, and before a demo or a release.
-argument-hint: "<epic id> — default: every epic with status 'built'"
+argument-hint: "<epic id> — default: every epic with status 'built' or 'as-built'"
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Agent, Bash
 ---
 
@@ -17,6 +17,13 @@ for the other — well-built code implementing the wrong scope still fails accep
 
 Read `docs/delivery/PROFILE.md`, the epic file, and every story's acceptance criteria. The epic must
 be `approved` — an epic whose scope was never agreed cannot be validated against it.
+
+**One exception: `status: as-built`.** These are stories `/onboard-existing` reverse-engineered from
+code that already exists, and validating them is the point — it converts "the code appears to do
+this" into evidence that it does. Validate them normally, with one change to the report: say plainly
+that the criteria were derived from the code they are being checked against, so a PASS here proves
+internal consistency and **not** that the behaviour was ever wanted. Only a human promoting the
+story to `approved` establishes that.
 
 Establish what you are validating: the epic's commits, the branch, or the working tree. Say which.
 

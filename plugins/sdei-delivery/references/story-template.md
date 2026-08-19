@@ -11,7 +11,7 @@ matrix all point at.
 epic: BE-03
 title: Campaign lifecycle
 unit: backend            # backend | frontend | infra | shared
-status: draft            # draft | in-review | approved | built | validated
+status: draft            # draft | in-review | approved | built | validated | as-built
 approved_by:             # a human name, set only at the /write-stories gate
 approved_on:
 graph_entities: [ent-campaign, ent-crew, proc-campaign-close]
@@ -21,6 +21,13 @@ depends_on: [BE-01]
 
 `status` is the human gate made mechanical. Nothing downstream — `/build-module`, `/write-tests` —
 acts on an epic that is not `approved`.
+
+`as-built` is the exception, and it is a stop rather than a go: it marks a story
+`/onboard-existing` reverse-engineered from code that already exists. Its criteria describe
+observed behaviour and were never agreed in advance, so `/build-module` refuses it exactly as it
+refuses a draft — there is nothing to build. It exists so `/validate-delivery` can check the
+existing code against it, and so a human can promote it to `approved` once they confirm the
+behaviour was actually wanted.
 
 ## Story format
 

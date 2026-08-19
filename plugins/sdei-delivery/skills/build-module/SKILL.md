@@ -18,6 +18,9 @@ which is the only way `/validate-delivery` can mean anything.
 
 1. `docs/delivery/PROFILE.md` exists. Missing → `/project-setup`.
 2. The epic file exists and its header says `status: approved`. **Anything else is a stop.**
+   `as-built` in particular is a stop, not a shortcut: the code is already there, and the criteria
+   were derived from it rather than agreed. Promoting it to `approved` is a human decision made in
+   `/onboard-existing`'s gate, not here.
    `draft` or `in-review` means the scope is not settled, and building it wastes the build.
 3. Where the epic creates or changes persisted data, `SCHEMA.md` says `status: validated`.
 4. No open question in `OPEN-QUESTIONS.md` `blocks` an entity this epic touches.
@@ -71,7 +74,7 @@ Atomicity
   → this is a question for the user, not a default. Ask before building.
 
 Gates
-  npm run typecheck   (the project's only automated gate)
+  <the profile's gate commands, verbatim — e.g. npm run typecheck>
 
 Out of scope
   reopening a closed campaign — non-goal-reopen

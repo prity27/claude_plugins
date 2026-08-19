@@ -1,7 +1,7 @@
 ---
 name: ingest-knowledge
-description: Turn pre-sales material — discovery-call transcripts, chat threads, proposal documents, SOWs, emails, wireframe notes — into a committed knowledge graph of entities, relations, decisions, constraints and open questions, each traceable to the source that said it. Then close the gaps by asking. Use before writing user stories or designing a schema.
-argument-hint: "[path to the folder of source material] — default: docs/knowledge/inbox/"
+description: Turn pre-sales material — discovery-call transcripts, chat threads, proposal documents, SOWs, emails, wireframe notes — into a committed knowledge graph of entities, relations, decisions, constraints and open questions, each traceable to the source that said it. Where no material exists, runs a structured interview and makes that the source. Then closes the gaps by asking. Use before writing user stories or designing a schema.
+argument-hint: "[path to the folder of source material | interview] — default: docs/knowledge/inbox/, or interview mode when it is empty"
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(ls:*), Bash(find:*), Bash(file:*), Bash(wc:*), Bash(head:*), Bash(cat:*), Bash(test:*)
 ---
 
@@ -36,6 +36,37 @@ transcribed before it reaches you. Say this immediately and list what you can ta
 
 If a recording exists with no transcript, list it as a **missing source** in the report and carry
 on. Never infer the contents of a file you could not read.
+
+## 0b. When there is no material — interview mode
+
+Sometimes there is nothing to ingest: an internal project, a verbal brief, a client whose documents
+never existed. Do not skip to `/write-stories` and do not invent a graph — **run the interview, and
+make the interview a source.**
+
+Say plainly that you are doing this, then work through the domain in this order, using
+`AskUserQuestion` batched four at a time. Each answer is a claim someone made, which is exactly what
+a source is:
+
+1. **Actors and their goals** — who uses this, and what does each of them come to it to do?
+2. **The core objects** — what things does the business track, and what does each one need to know
+   about itself?
+3. **The lifecycle** — for the object at the centre, what states does it move through, who moves it,
+   and what must be true for each transition?
+4. **The rules that are not obvious** — what is forbidden, what must be unique, what expires, what
+   requires approval?
+5. **The edges** — what systems does this talk to, who is notified when, and what happens when the
+   other side is down?
+6. **Explicit non-goals** — what has already been ruled out? These are as valuable as requirements,
+   because they end arguments.
+
+Write the answers to `docs/knowledge/sources/<YYYY-MM-DD>-interview.md` as a digest with numbered
+sections, and register it in `sources` with `"kind": "interview"` and `"authority": "medium"` —
+below a signed proposal, above a chat remark, because memory is not a document.
+
+Then build the graph from that digest exactly as you would from a transcript, quoting it and citing
+line ranges. Confidence rules are unchanged: what the user said is `stated`, what follows from it is
+`implied`, what you filled in is `assumed` and must appear in `openQuestions`. **The fact that the
+answers came from a live conversation does not make an inference into a statement.**
 
 ## 1. Inventory before reading
 

@@ -85,11 +85,25 @@ One file, four arrays, every claim traceable to a source. Written by `/ingest-kn
 - `stated` — someone said it, in as many words. Quote it.
 - `implied` — it follows from what was said, but nobody said it. Must be confirmed before a schema
   or a story depends on it.
+- `observed` — read out of existing code by `/onboard-existing`. The code proves the behaviour
+  **exists**, never that it is **wanted**. Treat it exactly like `implied` at every gate: it may
+  describe the system, but it may not become a requirement until a human confirms it.
 - `assumed` — you filled a gap. **Every `assumed` item must also appear in `openQuestions`.**
+
+An `observed` item that contradicts a `stated` one is a conflict, and conflicts go to a human — do
+not let the code win merely because it is more recent. Someone built it that way, but the proposal
+is what was sold.
+
+**`kind`** on a source describes what it is: `call-transcript`, `proposal`, `sow`, `chat-thread`,
+`email`, `wireframe-notes`, `interview` (a `/write-stories` or `/onboard-existing` Q&A digest), or
+`source-code` (a file in this repository, cited by `path` with `loc` as a line range).
 
 **`authority`** on a source ranks it when sources disagree: a signed proposal or a written decision
 outranks a passing remark in a chat thread. Ranking does not resolve a conflict — it only orders
 the question. Conflicts still go to a human.
+
+A `source-code` source has **high authority on behaviour and none on intent**. It settles "what does
+this do today"; it never settles "what should this do".
 
 **`sources`** is mandatory and non-empty on every entity, attribute, relation and open question. An
 unsourced claim does not go in the graph. `loc` is a line or section pointer into the digest file;
@@ -107,3 +121,5 @@ Anything violating these is a bug in the ingest, not an acceptable state:
    `answeredOn`.
 6. No entity is silently dropped between runs — re-ingesting merges by `id` and records what
    changed.
+7. Every `confidence: "observed"` item cites at least one `source-code` source with a real
+   `path` and `loc`, and is listed in `docs/delivery/AS-BUILT.md`.

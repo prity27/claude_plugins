@@ -25,6 +25,13 @@ Check `OPEN-QUESTIONS.md`. A question whose `blocks` list names an entity you ar
 stories for is a stop: **ask it now**, or write the story and mark it `blocked` with the question
 id. Never quietly pick an answer.
 
+If `docs/delivery/AS-BUILT.md` exists, read it before cutting a single epic. It changes what the
+work is: its **agreed but never built** list is your real backlog, and anything on its **built and
+agreed** list already has an `as-built` story — writing a fresh epic for it duplicates work that
+exists. Where you write a story that touches code the inventory marks `partial` or `dead`, say so
+in the story and cite the `file:line`, because "extend this" and "finish this" and "delete this and
+start again" are three different estimates.
+
 ## 1. Cut the epics
 
 Group graph entities and processes into epics along **user-visible capability**, never along

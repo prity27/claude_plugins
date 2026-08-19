@@ -1,7 +1,8 @@
 # sdei-delivery
 
-Nine skills that carry a project from pre-sales material to production, with a human gate at each
-point where being wrong is expensive.
+Ten skills that carry a project from pre-sales material to production, with a human gate at each
+point where being wrong is expensive. Language and framework agnostic: every skill reads its stack,
+its gate commands and its deploy mechanism out of the project profile rather than assuming Node.
 
 Where [`sdei-review`](../sdei-review) judges whether code is *good*, this plugin establishes what
 was *promised* — and then checks the two against each other.
@@ -34,6 +35,7 @@ repository, so a PR reviewer, a new joiner or a later Claude session picks it up
 ```
 /project-setup      →  docs/delivery/PROFILE.md
 /ingest-knowledge   →  docs/knowledge/graph.json + sources/ + OPEN-QUESTIONS.md
+/onboard-existing   →  docs/delivery/AS-BUILT.md + as-built stories   ← brownfield only, human gate
 /write-stories      →  docs/delivery/stories/<epic>.md          ← human gate
 /design-schema      →  docs/delivery/SCHEMA.md + mermaid ERD    ← human gate
 /write-docs         →  README.md per repo, docs/API.md, docs/ARCHITECTURE.md
@@ -51,7 +53,8 @@ the stack, the hosts or the compliance regime.
 | Skill | Does |
 | --- | --- |
 | `project-setup` | Captures the profile: experience level, domain, both stacks and databases, working directories, git remotes, deployment, security posture, OWASP baseline, compliance regimes. Detects everything the repos can tell it before asking a human anything. |
-| `ingest-knowledge` | Turns discovery calls, chat threads, proposals and SOWs into a sourced knowledge graph of entities, actors, processes, constraints, decisions and non-goals — then closes the gaps by asking. |
+| `ingest-knowledge` | Turns discovery calls, chat threads, proposals and SOWs into a sourced knowledge graph of entities, actors, processes, constraints, decisions and non-goals — then closes the gaps by asking. With no material, runs a structured interview and makes that the source. |
+| `onboard-existing` | Brownfield entry point. Inventories what the code actually does with `file:line` evidence, derives a graph marked `observed` rather than agreed, back-fills `as-built` stories, and reconciles code against surviving scope documents into built-and-agreed / built-but-never-agreed / agreed-but-never-built. |
 | `write-stories` | Epics and stories with Given/When/Then criteria, split backend/frontend/infra, including the baseline epic for infra, migrations, auth scaffolding and CRUD. Ends in per-epic sign-off. |
 | `design-schema` | Fields with precise types, indexes justified by real queries, relationships with cardinality, data classification and retention, a transactional analysis, and an ERD. Model code only after sign-off. |
 | `write-docs` | A README per repo written from real scripts and real env vars, an API contract, an architecture document. |
@@ -92,9 +95,16 @@ Greenfield, in order: `/project-setup` → `/ingest-knowledge` → `/write-stori
 → `/write-docs` → then per epic `/build-module` → `/write-tests` → `/validate-delivery` →
 `/deploy`.
 
-On an existing codebase, `/project-setup` and `/write-docs` are worth running on their own — they
-produce an honest baseline in an hour. Add `/ingest-knowledge` when the original scope documents
-still exist, and start using the gates from the next epic onward.
+On an existing codebase: `/project-setup` → `/onboard-existing` → `/write-docs`, then
+`/validate-delivery` against the back-filled `as-built` stories to find out what the code really
+proves. Add `/ingest-knowledge` first when the original scope documents still exist — the
+reconciliation is only possible when there are two pictures to compare. From there the normal chain
+resumes at `/write-stories` for the agreed-but-never-built backlog.
+
+The governing rule of that path: **code is evidence of behaviour, never evidence of intent.**
+Anything derived from code is marked `observed` and cannot become a requirement until a human
+confirms it, which is what stops a half-abandoned feature from being read as a specification and
+faithfully built out.
 
 Pair `/validate-delivery` with `sdei-review`'s `/deep-review`. They answer different questions, and
 well-built code implementing the wrong scope still fails acceptance.
