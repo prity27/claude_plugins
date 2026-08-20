@@ -2,11 +2,19 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sdei-delivery",
   "displayName": "Delivery Lifecycle",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Ten skills that carry a project from pre-sales material to production, in any language or framework: capture the project profile, ingest discovery documents into a knowledge graph, onboard an existing or half-built codebase, write user stories and a database model with explicit human sign-off, generate the README, API contract and architecture docs, drive module-scale builds in plan mode, write tests keyed to acceptance criteria, validate delivered code against those criteria, and deploy. Every phase writes a committed artefact the next phase reads.",
   "author": {
     "name": "prity27"
   },
-  "keywords": ["delivery", "user-stories", "knowledge-graph", "database-schema", "documentation", "deployment", "owasp"],
+  "keywords": [
+    "delivery",
+    "user-stories",
+    "knowledge-graph",
+    "database-schema",
+    "documentation",
+    "deployment",
+    "owasp"
+  ],
   "license": "UNLICENSED"
 }

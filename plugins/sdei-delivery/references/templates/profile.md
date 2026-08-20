@@ -146,4 +146,5 @@ Notes: <data residency, retention periods, BAAs, anything a story must honour>
 | Database model | `docs/delivery/SCHEMA.md` |
 | API contract | `docs/API.md` |
 | Architecture | `docs/ARCHITECTURE.md` |
+| Agent rulebook | `CLAUDE.md` — carries the known-exceptions row below, for reviewers |
 | Validation matrix | `docs/delivery/VALIDATION.md` |

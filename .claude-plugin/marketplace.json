@@ -10,7 +10,7 @@
       "name": "sdei-review",
       "source": "./plugins/sdei-review",
       "description": "Five parallel code-review specialists (security, correctness, conventions, performance, interface contract) with adversarial verification. Works in any language or framework.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "prity27"
       },
@@ -26,7 +26,7 @@
       "name": "sdei-delivery",
       "source": "./plugins/sdei-delivery",
       "description": "Ten skills that carry a project from pre-sales material to production, in any language or framework: project profile, knowledge graph, brownfield onboarding of existing code, user stories with acceptance criteria, database model, documentation, module-scale builds, tests, acceptance validation and deployment \u2014 with a human gate at each expensive decision.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "prity27"
       },
