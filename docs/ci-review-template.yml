@@ -1,0 +1,256 @@
+# Automatic pull-request review with sdei-review, in GitHub Actions.
+#
+# Copy this file to .github/workflows/claude-code-review.yml in the repository you
+# want reviewed. It is stack-agnostic and works as-is in a Node, .NET, Angular,
+# Python, Go or Java repository — the five specialists calibrate against whatever
+# they are pointed at. The ONLY stack-specific part is the optional gate block
+# further down, and the workflow runs fine without it.
+#
+# Every comment here marks something learned the hard way. If you delete one,
+# read it first.
+#
+# ---------------------------------------------------------------------------
+# SETUP — one thing
+#
+# Add the auth secret, under Settings → Secrets and variables → Actions:
+#
+#   ANTHROPIC_API_KEY        an org or team API key   ← prefer this
+#   CLAUDE_CODE_OAUTH_TOKEN  output of `claude setup-token`
+#
+# An OAuth token is tied to ONE person's subscription, so every teammate's PR
+# bills them. For anything shared, use the API key and swap the `with:` line.
+# Until the secret exists the job fails immediately on authentication.
+#
+# An organization secret scoped to the repositories you choose means new repos
+# inherit it and you never do per-repo setup again.
+#
+# Nothing else. The plugin is installed from a public marketplace at run time —
+# no vendored files, no committed .claude/ directory, no admin rights.
+#
+# ---------------------------------------------------------------------------
+# WHO CAN TRIGGER IT
+#
+# The PR author must have write permission on the repository; the action refuses
+# to run for anyone else. Pull requests from forks receive no secrets at all, so
+# they cannot be reviewed by this workflow — outside contributions need a human.
+
+name: Claude Code Review
+
+on:
+  pull_request:
+    # `synchronize` is deliberately absent. With it, every push to every open PR
+    # pays for a full five-specialist fan-out plus a skeptic per finding. Add it
+    # only once you know what a month of it costs. To re-review after a push,
+    # comment `@claude` on the PR (see the interactive workflow in the README).
+    types: [opened, ready_for_review]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read # lets the review read your CI results
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # REQUIRED, not boilerplate. Scope is resolved with
+          # `git diff origin/<base>...HEAD`, which needs the base branch ref and
+          # real history. The default shallow clone (depth 1) has neither, and the
+          # review finds no changes and reports nothing.
+          fetch-depth: 0
+
+      # =====================================================================
+      # OPTIONAL: let the review run your project's own gate
+      #
+      # Step 3 of deep-review runs whatever fast typecheck / lint / build command
+      # the repository declares, and then DROPS any finding those gates would have
+      # caught. That is what keeps the report short. Without a toolchain the review
+      # still works — it just reports the gate as unavailable and keeps everything.
+      #
+      # Turning it on is TWO edits that must agree:
+      #   (a) uncomment the block for your stack below, and
+      #   (b) add the same command to --allowedTools at the bottom of this file.
+      # Miss (b) and the install runs but the gate is denied at the tool layer.
+      #
+      # Every step here carries `continue-on-error: true` on purpose: a broken
+      # restore must degrade the review, never cancel it.
+      #
+      # --- Node / MERN / Angular / React -----------------------------------
+      # - uses: actions/setup-node@v6
+      #   with:
+      #     node-version: 24        # match package.json "engines"
+      #     cache: npm              # DELETE this line if there is no lockfile —
+      #   continue-on-error: true   # it errors out rather than skipping
+      # - run: npm ci
+      #   continue-on-error: true
+      #   # then allow: Bash(npm run typecheck) / Bash(npm run lint) / Bash(npx tsc:*)
+      #   # Angular: Bash(npx ng lint) — never `ng build`/`ng test`, far too slow
+      #
+      # --- .NET ------------------------------------------------------------
+      # - uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.x'   # match global.json / the .csproj TFM
+      #   continue-on-error: true
+      # - run: dotnet restore
+      #   continue-on-error: true
+      #   # then allow: Bash(dotnet build:*) — add --no-restore so it stays fast.
+      #   # `dotnet format --verify-no-changes` is the cheaper convention gate.
+      #
+      # --- Python ----------------------------------------------------------
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #     cache: pip
+      #   continue-on-error: true
+      # - run: pip install -r requirements.txt
+      #   continue-on-error: true
+      #   # then allow: Bash(ruff check:*) / Bash(mypy:*)
+      #
+      # --- Go --------------------------------------------------------------
+      # - uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.23'
+      #   continue-on-error: true
+      #   # then allow: Bash(go vet:*) / Bash(go build:*)
+      #
+      # --- Java / Maven ----------------------------------------------------
+      # - uses: actions/setup-java@v4
+      #   with:
+      #     distribution: temurin
+      #     java-version: '21'
+      #     cache: maven
+      #   continue-on-error: true
+      #   # then allow: Bash(mvn -q -o compile) — skip tests, they are not a gate here
+      #
+      # MONOREPO (a MERN or Angular front end beside a .NET or Node API): add one
+      # block per project and give each `working-directory:`. Or add none and let
+      # the review skip the gate — on a mixed repo the setup cost usually exceeds
+      # what a single gate buys you.
+      # =====================================================================
+
+      - name: Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}   ← prefer this
+
+          # WHY track_progress MATTERS.
+          #
+          # Passing `prompt` normally puts the action in *agent mode*, which
+          # creates no comment on the PR and installs no comment server. The
+          # review then runs in full — five specialists, every finding verified —
+          # and has nowhere to publish the result: it goes to the Actions log and
+          # nobody sees it. You pay for a review you never read.
+          #
+          # track_progress forces *tag mode*, which posts a comment up front and
+          # exposes mcp__github_comment__update_claude_comment to write into it.
+          # Valid for pull_request actions opened / synchronize / ready_for_review
+          # / reopened / labeled.
+          track_progress: true
+
+          # THE PLUGIN.
+          #
+          # The action runs `claude plugin marketplace add <url>` and then
+          # `claude plugin install <name@marketplace>` before the session starts,
+          # so the skill and its five agents are registered by the time the review
+          # begins. CI therefore runs the same version you install locally, with
+          # no committed copy to drift.
+          #
+          # Two constraints, both enforced by the action:
+          #
+          #  * the URL must be a full https://….git — the `owner/repo` shorthand
+          #    that works in `/plugin marketplace add` is REJECTED here;
+          #  * the marketplace must clone WITHOUT credentials. The action's git
+          #    auth is configured local to the workspace checkout, so a private
+          #    marketplace repository fails to clone. Keep it public, or vendor
+          #    the plugin into the repo and skip these two inputs.
+          plugin_marketplaces: https://github.com/prity27/claude_plugins.git
+          plugins: sdei-review@sdei-tools
+
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }}.
+
+            PROCESS. Use the `sdei-review:deep-review` skill and follow it exactly
+            — resolve scope once, calibrate against this repository's conventions,
+            run its gates once, fan out the five specialists in parallel, then
+            challenge every finding before reporting it. Do not improvise a review
+            of your own, and do not skip the verification step: unverified
+            findings from five agents at once bury the real ones.
+
+            SCOPE. There is no local branch for the base on this runner —
+            actions/checkout leaves HEAD detached on the PR merge ref and fetches
+            branches only as remote-tracking refs, so the skill's
+            `git diff <default>...HEAD` fails here. Use this instead:
+
+                git diff origin/${{ github.base_ref }}...HEAD
+
+            The working tree is clean, so `git diff HEAD` is empty by design.
+            That is not "nothing changed" — resolve scope from the diff above.
+
+            GATES. Run only a gate command this workflow has allowed. If the
+            toolchain or the command is missing, say the gate was unavailable and
+            review without it. Never report a missing toolchain as a defect in
+            this pull request.
+
+            REVIEW ONLY. Do not edit, create or delete files, and do not commit or
+            push anything. Report what you find and let the humans decide.
+
+            OUTPUT. Put the verified findings in your PR comment via
+            mcp__github_comment__update_claude_comment. If every axis came back
+            clean, say so in one short paragraph rather than staying silent. Use
+            inline comments only for a finding that points at a specific changed
+            line, and never instead of the summary comment.
+
+          # Read-only by design. Append your stack's gate command from the block
+          # above — e.g. Bash(npm run typecheck) or Bash(dotnet build:*) — and
+          # nothing else; every addition is something a PR author can provoke.
+          claude_args: |
+            --allowedTools "Agent,Skill,Read,Grep,Glob,Bash(git diff:*),Bash(git status:*),Bash(git log:*),Bash(git show:*),Bash(git ls-files:*),Bash(git rev-parse:*),Bash(git merge-base:*),mcp__github_comment__update_claude_comment,mcp__github_inline_comment__create_inline_comment"
+            --disallowedTools "Edit,Write,MultiEdit,NotebookEdit,Bash(git add:*),Bash(git commit:*),Bash(git push:*)"
+
+          # ABOUT THOSE TWO LINES.
+          #
+          # `Agent` is a single tool regardless of subagent type, so allowing it
+          # covers all five namespaced specialists. `Skill` lets the orchestrator
+          # load deep-review.
+          #
+          # The disallow list is not redundant. Tag mode sets
+          # `--permission-mode acceptEdits` and grants git add/commit/push so the
+          # interactive @claude workflow can push fixes. A reviewer has no
+          # business with any of that; disallowed wins over allowed.
+
+# ---------------------------------------------------------------------------
+# THE ONE THAT SURPRISES EVERYONE
+#
+# On any pull request the action DELETES the checkout's `.claude/`, `CLAUDE.md`
+# and `.mcp.json` and restores them from the BASE branch before the CLI starts,
+# because on a PR those paths are attacker-controllable — a pull request could
+# otherwise ship a hook that runs on the reviewer's machine. It is unconditional
+# and there is no opt-out input.
+#
+# Consequences:
+#
+#  * Repo-local agents and skills added ON THE PR BRANCH are not used by the
+#    review. They have to be merged to the base branch first.
+#  * A repository whose base branch has no `.claude/` at all gets no repo-local
+#    agents, however complete the PR branch looks.
+#  * Plugins are immune: they are installed from the marketplace AFTER the
+#    restore. This is the main reason to prefer the plugin route in CI over
+#    vendoring agents into `.claude/`.
+#
+# ---------------------------------------------------------------------------
+# PAIRING WITH REPO-SPECIFIC REVIEWERS
+#
+# For a codebase you work in daily, a reviewer carrying its real file names,
+# citations and known-exception list beats a generic one. Commit those to the
+# base branch's `.claude/agents/` and they calibrate this review rather than
+# competing with it — the plugin's names are axis-based (`security-reviewer`) and
+# do not collide with a prefixed repo-specific set (`myproject-security-reviewer`).
+#
+# The cheapest version of that is a `CLAUDE.md` on the base branch: the five
+# specialists read it and defer to it, so a repository's real conventions and its
+# "these exceptions are deliberate" list reach the review with no agents at all.
